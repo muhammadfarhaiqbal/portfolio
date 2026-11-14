@@ -36,6 +36,10 @@ body {
 a { color: inherit; }
 img { display: block; max-width: 100%; }
 
+/* Visible silver particle canvas — sits behind the content, above the black background */
+#silver-canvas { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+header.nav, main, footer { position: relative; z-index: 1; }
+
 /* Ambient silver orbs */
 .ambient { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
 .orb { position: absolute; border-radius: 50%; filter: blur(90px); opacity: 0.35; }

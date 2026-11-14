@@ -5,6 +5,93 @@
 (function () {
   'use strict';
 
+  // Visible silver particle canvas — inspired by the old site's aurora
+  // canvas, rebuilt in silver/black glass: floating silver particles,
+  // connecting lines, expanding rings, mouse parallax. No red/crimson.
+  function initSilverCanvas() {
+    var canvas = document.getElementById('silver-canvas');
+    if (!canvas || !canvas.getContext) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var ctx = canvas.getContext('2d');
+    var width = 0, height = 0, raf = null, running = false, frame = 0;
+    var mouse = { x: 0.5, y: 0.5, tx: 0.5, ty: 0.5 };
+    var particles = [];
+    var rings = [];
+
+    function resize() {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+      var count = Math.min(110, Math.max(45, Math.floor(width * height / 16000)));
+      particles = [];
+      for (var i = 0; i < count; i++) {
+        particles.push({
+          x: Math.random() * width, y: Math.random() * height,
+          vx: (Math.random() - 0.5) * 0.45, vy: (Math.random() - 0.5) * 0.45,
+          r: 1 + Math.random() * 2.2, tw: Math.random() * Math.PI * 2
+        });
+      }
+    }
+    window.addEventListener('resize', resize, { passive: true });
+    resize();
+    window.addEventListener('mousemove', function (e) {
+      mouse.tx = e.clientX / width; mouse.ty = e.clientY / height;
+    }, { passive: true });
+
+    function render() {
+      if (!running) return;
+      frame++;
+      mouse.x += (mouse.tx - mouse.x) * 0.05;
+      mouse.y += (mouse.ty - mouse.y) * 0.05;
+      ctx.clearRect(0, 0, width, height);
+
+      // Expanding silver rings from the hero centre, one every ~3 seconds
+      if (frame % 180 === 0) rings.push({ r: 0, max: Math.max(width, height) * 0.6 });
+      rings = rings.filter(function (ring) { return ring.r < ring.max; });
+      rings.forEach(function (ring) {
+        ring.r += 1.6;
+        var alpha = Math.max(0, 0.14 * (1 - ring.r / ring.max));
+        ctx.strokeStyle = 'rgba(232, 232, 236, ' + alpha.toFixed(3) + ')';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.arc(width * 0.5 + (mouse.x - 0.5) * 30, height * 0.42 + (mouse.y - 0.5) * 30, ring.r, 0, Math.PI * 2);
+        ctx.stroke();
+      });
+
+      // Particles, drifting + gently pushed by the mouse
+      particles.forEach(function (p) {
+        p.tw += 0.03;
+        p.x += p.vx + (mouse.x - 0.5) * 0.25;
+        p.y += p.vy + (mouse.y - 0.5) * 0.25;
+        if (p.x < -10) p.x = width + 10; if (p.x > width + 10) p.x = -10;
+        if (p.y < -10) p.y = height + 10; if (p.y > height + 10) p.y = -10;
+        var a = 0.35 + Math.sin(p.tw) * 0.3;
+        ctx.fillStyle = 'rgba(232, 232, 236, ' + a.toFixed(2) + ')';
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill();
+      });
+
+      // Connecting lines between close particles — the visible network
+      for (var i = 0; i < particles.length; i++) {
+        for (var j = i + 1; j < particles.length; j++) {
+          var a = particles[i], b = particles[j];
+          var dx = a.x - b.x, dy = a.y - b.y, d = Math.sqrt(dx * dx + dy * dy);
+          if (d < 130) {
+            ctx.strokeStyle = 'rgba(192, 192, 200, ' + (0.22 * (1 - d / 130)).toFixed(3) + ')';
+            ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+          }
+        }
+      }
+      raf = requestAnimationFrame(render);
+    }
+    function start() { if (!running) { running = true; render(); } }
+    function stop() { running = false; if (raf) cancelAnimationFrame(raf); raf = null; }
+    start();
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) stop(); else start();
+    });
+  }
+  initSilverCanvas();
+
   // Glass navbar on scroll
   var nav = document.getElementById('nav');
   function onScroll() {
