@@ -292,8 +292,8 @@ footer { text-align: center; padding: 56px 20px 40px; color: var(--muted); font-
   opacity: 0; transition: opacity 0.3s ease;
 }
 .skill:hover::before, .project:hover::before { opacity: 1; }
-.skill:hover { transform: translateY(-6px) scale(1.01); }
-.project:hover { transform: translateY(-6px); }
+.skill:hover { transform: translateY(-10px) scale(1.02); box-shadow: 0 20px 44px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(232, 232, 236, 0.35); }
+.project:hover { transform: translateY(-10px); box-shadow: 0 20px 44px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(232, 232, 236, 0.35); }
 .skill-icon { transition: transform 0.3s ease; }
 .skill:hover .skill-icon { transform: translateY(-3px) scale(1.08) rotate(-4deg); }
 .timeline-dot { animation: ringPulse 2.4s ease-in-out infinite; }
@@ -312,6 +312,82 @@ footer { text-align: center; padding: 56px 20px 40px; color: var(--muted); font-
   .orb { animation: none; }
   html { scroll-behavior: auto; }
   .nav, .hero-photo-wrap, .hero-copy, .hero-copy .eyebrow, .hero-copy h1, .hero-copy .tagline, .hero-copy .hero-about, .hero-actions, .hero-meta, .photo-glass, .silver-text, .stat strong, .timeline-dot, .dot, .sparkle { animation: none !important; }
+  #intro-overlay { display: none; }
+  .marquee-track, .photo-orbit, .contact-card, .contact-card::before { animation: none !important; }
+  .skills-grid.visible .skill, .projects-grid.visible .project { animation: none; }
+}
+
+/* --- Big visible animation: intro overlay, marquee, photo orbit, staggered cards, contact glow --- */
+@keyframes introLetterIn { from { opacity: 0; transform: translateY(34px) rotateX(50deg); } to { opacity: 1; transform: translateY(0) rotateX(0); } }
+@keyframes introBarFill { from { width: 0; } to { width: 100%; } }
+@keyframes introFadeOut { to { opacity: 0; visibility: hidden; transform: translateY(-40px) scale(1.04); } }
+@keyframes marqueeScroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@keyframes orbitSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+@keyframes cardIn { from { opacity: 0; transform: translateY(34px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes borderGlowMove { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+@keyframes contactGlowPulse { 0%, 100% { box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45), 0 0 18px rgba(232, 232, 236, 0.10); } 50% { box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45), 0 0 46px rgba(232, 232, 236, 0.38); } }
+
+/* Intro overlay — full-screen black glass, name letters stagger in, bar fills, lifts away */
+#intro-overlay {
+  position: fixed; inset: 0; z-index: 100; cursor: pointer;
+  display: grid; place-items: center;
+  background: rgba(0, 0, 0, 0.94);
+  backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+}
+#intro-overlay.done { animation: introFadeOut 0.45s ease forwards; pointer-events: none; }
+.intro-inner { text-align: center; padding: 0 20px; }
+.intro-name {
+  font-size: clamp(30px, 6vw, 58px); font-weight: 800; letter-spacing: 0.06em; line-height: 1.1;
+  background: var(--silver-gradient); -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.intro-letter { display: inline-block; animation: introLetterIn 0.5s ease backwards; }
+.intro-bar { width: min(320px, 70vw); height: 3px; margin: 26px auto 0; border-radius: 999px; background: rgba(255, 255, 255, 0.14); overflow: hidden; }
+.intro-bar-fill { display: block; height: 100%; width: 0; background: var(--silver-gradient); animation: introBarFill 1.8s ease forwards; }
+.intro-hint { margin-top: 18px; font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--muted); }
+
+/* Scrolling marquee strip under the hero stats */
+.marquee { overflow: hidden; margin-top: 44px; padding: 14px 0; border-top: 1px solid var(--border-soft); border-bottom: 1px solid var(--border-soft); }
+.marquee-track { display: flex; width: max-content; animation: marqueeScroll 22s linear infinite; }
+.marquee-track span { font-size: 15px; font-weight: 700; letter-spacing: 0.14em; color: var(--silver); white-space: nowrap; }
+
+/* Rotating silver ring with orbiting dots around the hero photo */
+.photo-orbit {
+  position: absolute; inset: -18px; border: 1px dashed rgba(232, 232, 236, 0.45);
+  border-radius: 50%; pointer-events: none; z-index: 1;
+  animation: orbitSpin 12s linear infinite;
+}
+.orbit-dot {
+  position: absolute; top: -6px; left: 50%; width: 11px; height: 11px; margin-left: -5px;
+  border-radius: 50%; background: #ffffff; box-shadow: 0 0 14px rgba(255, 255, 255, 0.95);
+}
+.orbit-dot-2 { top: auto; bottom: -6px; }
+.orbit-dot-3 { top: 50%; left: -6px; margin-left: 0; margin-top: -5px; }
+
+/* Staggered scroll-in: each skill/project card trails the previous one by 0.08s */
+.skills-grid.visible .skill, .projects-grid.visible .project { animation: cardIn 0.6s ease backwards; }
+.skills-grid.visible .skill:nth-child(2), .projects-grid.visible .project:nth-child(2) { animation-delay: 0.08s; }
+.skills-grid.visible .skill:nth-child(3), .projects-grid.visible .project:nth-child(3) { animation-delay: 0.16s; }
+.skills-grid.visible .skill:nth-child(4), .projects-grid.visible .project:nth-child(4) { animation-delay: 0.24s; }
+.skills-grid.visible .skill:nth-child(5), .projects-grid.visible .project:nth-child(5) { animation-delay: 0.32s; }
+.skills-grid.visible .skill:nth-child(6), .projects-grid.visible .project:nth-child(6) { animation-delay: 0.40s; }
+
+/* Project card shine sweep on hover */
+.project::after {
+  content: ""; position: absolute; top: 0; left: 0; width: 45%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.20), transparent);
+  transform: translateX(-140%) skewX(-18deg); pointer-events: none;
+}
+.project:hover::after { animation: shineSweep 0.9s ease; }
+
+/* Animated gradient border glow pulsing on the contact card */
+.contact-card { position: relative; animation: contactGlowPulse 3s ease-in-out infinite; }
+.contact-card::before {
+  content: ""; position: absolute; inset: -1px; border-radius: inherit; padding: 1px; pointer-events: none;
+  background: linear-gradient(120deg, #ffffff, #8a8a94, #e8e8ec, #7d7d88, #ffffff);
+  background-size: 300% 300%; animation: borderGlowMove 4s linear infinite;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
 }
 
 /* Responsive */

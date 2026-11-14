@@ -15,6 +15,14 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <!-- Intro overlay: name letters stagger in, silver bar fills, then it lifts away (~2.1s, tap to skip) -->
+  <div id="intro-overlay" role="presentation">
+    <div class="intro-inner">
+      <p class="intro-name">MUHAMMAD FARHAN IQBAL</p>
+      <div class="intro-bar"><span class="intro-bar-fill"></span></div>
+      <p class="intro-hint">Tap to skip</p>
+    </div>
+  </div>
   <!-- Silver particle canvas — visible animation, silver/black glass theme (not the old crimson theme) -->
   <canvas id="silver-canvas" aria-hidden="true"></canvas>
   <div class="ambient" aria-hidden="true">
@@ -43,6 +51,7 @@
     <section class="hero">
       <div class="hero-inner">
         <div class="hero-photo-wrap reveal">
+          <span class="photo-orbit" aria-hidden="true"><span class="orbit-dot"></span><span class="orbit-dot orbit-dot-2"></span><span class="orbit-dot orbit-dot-3"></span></span>
           <div class="photo-glass">
             <img src="https://farhaniqbal.online/assets/farhan.jpg" alt="Muhammad Farhan Iqbal" width="760" height="1024">
           </div>
@@ -84,6 +93,14 @@
         <div class="stat glass-card">
           <strong>6</strong>
           <span>Projects</span>
+        </div>
+      </div>
+
+      <!-- Scrolling marquee strip -->
+      <div class="marquee" aria-hidden="true">
+        <div class="marquee-track">
+          <span>CYBERSECURITY ✦ DIGITAL FORENSICS ✦ FRONT-END DEVELOPER ✦ C++ ✦ SQL ✦ HTML5 ✦ CSS3 ✦&nbsp;</span>
+          <span>CYBERSECURITY ✦ DIGITAL FORENSICS ✦ FRONT-END DEVELOPER ✦ C++ ✦ SQL ✦ HTML5 ✦ CSS3 ✦&nbsp;</span>
         </div>
       </div>
     </section>
@@ -191,7 +208,7 @@
         <h2>Selected work</h2>
         <p class="section-sub">Six projects from my studies — C++, SQL, web and security fundamentals.</p>
       </div>
-      <div class="projects-grid">
+      <div class="projects-grid reveal">
         <article class="glass-card project reveal" data-tilt>
           <span class="project-num">01</span>
           <h3>C++ Student Record Management System</h3>
